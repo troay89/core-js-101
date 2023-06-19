@@ -19,8 +19,8 @@
  *    'Tue, 26 Jan 2016 13:48:02 GMT' => Date()
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
-function parseDataFromRfc2822(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromRfc2822(value) {
+  return new Date(value);
 }
 
 /**
@@ -34,8 +34,8 @@ function parseDataFromRfc2822(/* value */) {
  *    '2016-01-19T16:07:37+00:00'    => Date()
  *    '2016-01-19T08:07:37Z' => Date()
  */
-function parseDataFromIso8601(/* value */) {
-  throw new Error('Not implemented');
+function parseDataFromIso8601(value) {
+  return new Date(value);
 }
 
 
@@ -53,8 +53,10 @@ function parseDataFromIso8601(/* value */) {
  *    Date(2012,1,1)    => true
  *    Date(2015,1,1)    => false
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const exception = [400, 800, 1200, 1600, 2000, 2400];
+  if (exception.includes(date.getFullYear())) return true;
+  return date.getFullYear() % 4 === 0 && date.getFullYear() % 100 !== 0;
 }
 
 
@@ -73,8 +75,9 @@ function isLeapYear(/* date */) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,10,0,0,250)     => "00:00:00.250"
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
-function timeSpanToString(/* startDate, endDate */) {
-  throw new Error('Not implemented');
+function timeSpanToString(startDate, endDate) {
+  const date = new Date(endDate - startDate);
+  return `${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}:${date.getUTCSeconds().toString().padStart(2, '0')}.${date.getMilliseconds().toString().padStart(3, '0')}`;
 }
 
 
@@ -94,8 +97,23 @@ function timeSpanToString(/* startDate, endDate */) {
  *    Date.UTC(2016,3,5,18, 0) => Math.PI
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
-function angleBetweenClockHands(/* date */) {
-  throw new Error('Not implemented');
+function angleBetweenClockHands(date) {
+  const hours = date.getUTCHours();
+  const clock = hours >= 12 ? hours - 12 : hours;
+  const minutes = date.getUTCMinutes();
+
+  const gradMinute = minutes !== 0 ? (360 / 60) * minutes : 0;
+
+  let gradHour = 0;
+  if (clock !== 0 || minutes !== 0) {
+    gradHour = ((360 / 12) * clock) + (minutes * 0.5);
+  }
+  const grad1 = gradHour - gradMinute;
+  const grad2 = gradMinute - gradHour;
+  const gradCheck1 = grad1 < 0 ? 360 + grad1 : grad1;
+  const gradCheck2 = grad2 < 0 ? 360 + grad2 : grad2;
+  const grad = Math.min(Math.abs(gradCheck1), Math.abs(gradCheck2));
+  return grad / (180 / Math.PI);
 }
 
 
